@@ -1,0 +1,71 @@
+# Dependencies
+node_modules/
+.npm/
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+prisma/dev.db
+prisma/migrations/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Tauri
+src-tauri/target/
+src-tauri/WixTools/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Assets (optionally ignore large asset files)
+# assets/sprites/*.png
+# assets/exports/*.json
+
+# Backup files
+*.bak
+*.backup
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Optional: Prisma generated client (can regenerate)
+node_modules/.prisma/
+node_modules/@prisma/
