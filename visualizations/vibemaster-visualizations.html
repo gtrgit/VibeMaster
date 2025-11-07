@@ -1211,7 +1211,9 @@
                         description: '5 core needs (Food, Safety, Wealth, Social, Purpose) with dynamic decision-making',
                         tags: ['npc', 'core'],
                         priority: 'high',
-                        file: 'need-based-behavior.ts'
+                        file: 'need-based-behavior.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/need-based-behavior.ts'
                     },
                     {
                         id: 'VM-002',
@@ -1219,7 +1221,9 @@
                         description: '24-hour simulation with 4 checkpoints (6:00, 12:00, 18:00, 22:00)',
                         tags: ['npc', 'world'],
                         priority: 'high',
-                        file: 'daily-cycle-system.ts'
+                        file: 'daily-cycle-system.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/daily-cycle-system.ts'
                     },
                     {
                         id: 'VM-003',
@@ -1227,7 +1231,9 @@
                         description: 'Physical spaces: homes, workplaces, shared locations with occupancy tracking',
                         tags: ['world'],
                         priority: 'high',
-                        file: 'location-system.ts'
+                        file: 'location-system.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/location-system.ts'
                     },
                     {
                         id: 'VM-004',
@@ -1235,7 +1241,9 @@
                         description: '12+ occupations with crafting chains and resource management',
                         tags: ['economy'],
                         priority: 'high',
-                        file: 'resource-system-with-logging.ts'
+                        file: 'resource-system-with-logging.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/resource-system-with-logging.ts'
                     },
                     {
                         id: 'VM-005',
@@ -1243,7 +1251,9 @@
                         description: 'Complete SQLite schema with NPC, Goal, Memory, Relationship, Location models',
                         tags: ['core'],
                         priority: 'high',
-                        file: 'schema.prisma'
+                        file: 'schema.prisma',
+                        repo: 'VibeMaster-studio',
+                        path: 'prisma/schema.prisma'
                     },
                     {
                         id: 'VM-006',
@@ -1251,7 +1261,9 @@
                         description: 'Trust, affection, respect, grudge, fear values between NPCs',
                         tags: ['npc'],
                         priority: 'medium',
-                        file: 'schema.prisma'
+                        file: 'schema.prisma',
+                        repo: 'VibeMaster-studio',
+                        path: 'prisma/schema.prisma'
                     },
                     {
                         id: 'VM-007',
@@ -1259,7 +1271,9 @@
                         description: 'Browser-based voice-to-JSON scene creator with ElevenLabs + Claude',
                         tags: ['ui'],
                         priority: 'medium',
-                        file: 'vibemaster-studio.html'
+                        file: 'vibemaster-studio.html',
+                        repo: 'VibeMaster-studio',
+                        path: 'vibemaster-studio.html'
                     },
                     {
                         id: 'VM-008',
@@ -1267,7 +1281,9 @@
                         description: 'State machines, dependency graphs, data flow, timeline, and kanban',
                         tags: ['ui'],
                         priority: 'low',
-                        file: 'vibemaster-visualizations.html'
+                        file: 'vibemaster-visualizations.html',
+                        repo: 'VibeMaster',
+                        path: 'visualizations/vibemaster-visualizations.html'
                     },
                     {
                         id: 'VM-009',
@@ -1275,7 +1291,9 @@
                         description: 'Connect Prisma/SQLite to Phaser game engine via Tauri',
                         tags: ['core'],
                         priority: 'high',
-                        file: 'database.ts'
+                        file: 'database.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/database.ts'
                     },
                     {
                         id: 'VM-010',
@@ -1283,7 +1301,9 @@
                         description: 'Display NPCs in Phaser with sprite animations and location updates',
                         tags: ['ui', 'world'],
                         priority: 'high',
-                        file: 'main.ts'
+                        file: 'main.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/main.ts'
                     },
                     {
                         id: 'VM-011',
@@ -1291,7 +1311,9 @@
                         description: 'Player movement, interaction, and world exploration',
                         tags: ['core', 'ui'],
                         priority: 'medium',
-                        file: 'main.ts'
+                        file: 'main.ts',
+                        repo: 'VibeMaster-studio',
+                        path: 'src/main.ts'
                     }
                 ],
                 progress: [
@@ -1412,8 +1434,12 @@
                 let fileDisplay = item.file;
                 const isPlanned = item.file.includes('(planned)');
 
-                if (!isPlanned) {
-                    // Construct GitHub URL based on file type
+                if (!isPlanned && item.repo && item.path) {
+                    // Use explicit repo and path if provided
+                    const githubUrl = `https://github.com/gtrgit/${item.repo}/blob/main/${item.path}`;
+                    fileDisplay = `<a href="${githubUrl}" target="_blank" style="color: #3498db; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">📁 ${item.file}</a>`;
+                } else if (!isPlanned) {
+                    // Fallback to old logic for items without repo/path
                     let filePath = '';
                     const fileName = item.file;
 
