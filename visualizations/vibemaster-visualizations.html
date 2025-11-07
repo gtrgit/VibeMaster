@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeMaster - Interactive Visualizations</title>
+
+    <!-- External Libraries via CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/vis-timeline@7.7.3/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <link href="https://unpkg.com/vis-timeline@7.7.3/styles/vis-timeline-graph2d.min.css" rel="stylesheet" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .viz-container {
+            min-height: 600px;
+            position: relative;
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .description {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .legend {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .legend h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            display: inline-block;
+            margin: 5px 15px 5px 0;
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* State Machine Styles */
+        .state-machine svg {
+            width: 100%;
+            height: 600px;
+        }
+
+        .state-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .state-node:hover {
+            opacity: 0.8;
+        }
+
+        .state-node rect {
+            stroke: #2c3e50;
+            stroke-width: 2px;
+        }
+
+        .state-node text {
+            fill: white;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .state-link {
+            fill: none;
+            stroke: #95a5a6;
+            stroke-width: 2px;
+            marker-end: url(#arrowhead);
+        }
+
+        .state-link-label {
+            font-size: 12px;
+            fill: #7f8c8d;
+        }
+
+        /* Dependency Graph Styles */
+        .dependency-graph svg {
+            width: 100%;
+            height: 700px;
+        }
+
+        .node circle {
+            stroke: white;
+            stroke-width: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover circle {
+            stroke-width: 5px;
+        }
+
+        .node text {
+            font-size: 14px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .link {
+            fill: none;
+            stroke: #95a5a6;
+            stroke-width: 2px;
+            opacity: 0.6;
+        }
+
+        .link.highlighted {
+            stroke: #e74c3c;
+            stroke-width: 3px;
+            opacity: 1;
+        }
+
+        /* Data Flow Styles */
+        .data-flow svg {
+            width: 100%;
+            height: 600px;
+        }
+
+        .flow-node rect {
+            stroke: #2c3e50;
+            stroke-width: 2px;
+            rx: 5px;
+        }
+
+        .flow-node text {
+            fill: #2c3e50;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        .flow-link {
+            fill: none;
+            stroke: #3498db;
+            stroke-width: 2px;
+            marker-end: url(#flow-arrow);
+        }
+
+        /* Timeline Styles */
+        #timeline {
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            height: 500px;
+        }
+
+        .info-panel {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .info-panel ul {
+            margin-left: 20px;
+        }
+
+        .info-panel li {
+            margin: 8px 0;
+            color: #555;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: absolute;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 6px;
+            pointer-events: none;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .tooltip h4 {
+            margin-bottom: 8px;
+            color: #ffd700;
+        }
+
+        /* Code Reference Styles */
+        .code-ref {
+            font-family: 'Courier New', monospace;
+            background: #2c3e50;
+            color: #2ecc71;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-complete { background: #2ecc71; color: white; }
+        .status-progress { background: #f39c12; color: white; }
+        .status-planned { background: #95a5a6; color: white; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 VibeMaster Interactive Visualizations</h1>
+            <p>Explore game components and living world systems</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="state-machine">NPC State Machine</button>
+            <button class="tab-button" data-tab="dependency-graph">System Dependencies</button>
+            <button class="tab-button" data-tab="data-flow">Data Flow</button>
+            <button class="tab-button" data-tab="timeline">Daily Cycle Timeline</button>
+        </div>
+
+        <!-- Tab 1: NPC Behavior State Machine -->
+        <div id="state-machine" class="tab-content active">
+            <h2>NPC Behavior State Machine <span class="status-badge status-complete">✓ Complete</span></h2>
+            <div class="description">
+                <strong>How NPCs make decisions:</strong> NPCs continuously evaluate their needs, emotions, and goals to determine actions.
+                This state machine shows the full decision-making cycle from need detection to action execution.
+                <br><br>
+                <strong>Implementation:</strong> <span class="code-ref">src/systems/npc/NPC.ts</span>
+            </div>
+            <div class="viz-container state-machine" id="stateMachineViz"></div>
+            <div class="legend">
+                <h3>State Types</h3>
+                <div class="legend-item"><span class="legend-color" style="background: #3498db;"></span> Evaluation States</div>
+                <div class="legend-item"><span class="legend-color" style="background: #e74c3c;"></span> Critical States</div>
+                <div class="legend-item"><span class="legend-color" style="background: #2ecc71;"></span> Action States</div>
+                <div class="legend-item"><span class="legend-color" style="background: #f39c12;"></span> Update States</div>
+            </div>
+        </div>
+
+        <!-- Tab 2: System Dependency Graph -->
+        <div id="dependency-graph" class="tab-content">
+            <h2>System Dependency Graph <span class="status-badge status-complete">✓ Complete</span></h2>
+            <div class="description">
+                <strong>System relationships:</strong> This graph shows how VibeMaster's systems depend on and interact with each other.
+                Click on nodes to highlight dependencies. Larger nodes indicate more connections.
+                <br><br>
+                <strong>Source:</strong> <span class="code-ref">COMPONENTS.md</span> + <span class="code-ref">src/systems/</span>
+            </div>
+            <div class="viz-container dependency-graph" id="dependencyGraphViz"></div>
+            <div class="legend">
+                <h3>System Categories</h3>
+                <div class="legend-item"><span class="legend-color" style="background: #9b59b6;"></span> Core Systems</div>
+                <div class="legend-item"><span class="legend-color" style="background: #3498db;"></span> NPC Systems</div>
+                <div class="legend-item"><span class="legend-color" style="background: #2ecc71;"></span> World Systems</div>
+                <div class="legend-item"><span class="legend-color" style="background: #f39c12;"></span> Economy Systems</div>
+                <div class="legend-item"><span class="legend-color" style="background: #e74c3c;"></span> Planned Systems</div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Data Flow Diagram -->
+        <div id="data-flow" class="tab-content">
+            <h2>Data Flow Diagram <span class="status-badge status-complete">✓ Complete</span></h2>
+            <div class="description">
+                <strong>Data transformation:</strong> Follow how data flows from NPC needs through the decision-making process to database updates.
+                This shows the complete pipeline of NPC behavior execution.
+                <br><br>
+                <strong>Key Methods:</strong> <span class="code-ref">updateNeeds()</span> → <span class="code-ref">evaluateGoals()</span> → <span class="code-ref">takeAction()</span>
+            </div>
+            <div class="viz-container data-flow" id="dataFlowViz"></div>
+            <div class="info-panel">
+                <h3>Data Flow Details</h3>
+                <ul>
+                    <li><strong>Need Values (0-100):</strong> Food, Safety, Wealth, Social, Purpose</li>
+                    <li><strong>Emotions (0-100):</strong> Happiness, Fear, Sadness, Trust, Anger, Anticipation</li>
+                    <li><strong>Goal Types:</strong> Survival, Escape, Rescue, Revenge, Romance, Wealth, Power, Knowledge</li>
+                    <li><strong>Actions:</strong> Seek Food, Seek Shelter, Search, Move, Interact</li>
+                    <li><strong>Database Models:</strong> NPC, Need, Goal, Memory, Event, Relationship</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab 4: Daily Cycle Timeline -->
+        <div id="timeline" class="tab-content">
+            <h2>Daily Cycle Timeline <span class="status-badge status-complete">✓ Complete</span></h2>
+            <div class="description">
+                <strong>24-Hour NPC simulation:</strong> NPCs follow daily routines with 4 decision checkpoints.
+                Hover over events to see details. Drag to pan, scroll to zoom.
+                <br><br>
+                <strong>Implementation:</strong> <span class="code-ref">src/systems/npc/daily-cycle-system.ts</span>
+            </div>
+            <div id="timelineViz"></div>
+            <div class="info-panel">
+                <h3>Checkpoint Schedule</h3>
+                <ul>
+                    <li><strong>06:00 Morning:</strong> Wake up, evaluate needs, plan day activities</li>
+                    <li><strong>12:00 Midday:</strong> Lunch break, reassess goals, adjust plans</li>
+                    <li><strong>18:00 Evening:</strong> Dinner, social activities, family time</li>
+                    <li><strong>22:00 Night:</strong> Prepare for sleep, reflect on day, rest</li>
+                </ul>
+                <p style="margin-top: 15px; color: #7f8c8d;">
+                    <strong>Note:</strong> Between checkpoints, NPCs continue their planned activities.
+                    Needs decay over time, triggering urgent goals if thresholds are reached.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================
+        // Tab Navigation
+        // ==========================
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.dataset.tab;
+
+                // Update buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Update content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // ==========================
+        // Tooltip Helper
+        // ==========================
+        const tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'tooltip')
+            .style('opacity', 0);
+
+        function showTooltip(html, event) {
+            tooltip.transition().duration(200).style('opacity', 1);
+            tooltip.html(html)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
+        }
+
+        function hideTooltip() {
+            tooltip.transition().duration(200).style('opacity', 0);
+        }
+
+        // ==========================
+        // 1. NPC STATE MACHINE
+        // ==========================
+        function createStateMachine() {
+            const container = d3.select('#stateMachineViz');
+            const width = container.node().offsetWidth;
+            const height = 600;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Define arrow marker
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('viewBox', '0 0 10 10')
+                .attr('refX', 8)
+                .attr('refY', 5)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+                .attr('fill', '#95a5a6');
+
+            // State machine data based on NPC.ts
+            const states = [
+                { id: 'tick', label: 'NPC Tick\n(Every Hour)', x: width/2, y: 50, color: '#3498db', file: 'NPC.ts:19' },
+                { id: 'updateNeeds', label: 'Update Needs\n(Decay Over Time)', x: width/2 - 250, y: 150, color: '#3498db', file: 'NPC.ts:36' },
+                { id: 'updateEmotions', label: 'Update Emotions\n(Based on Needs)', x: width/2, y: 150, color: '#3498db', file: 'NPC.ts:70' },
+                { id: 'evaluateGoals', label: 'Evaluate Goals\n(Check Priorities)', x: width/2 + 250, y: 150, color: '#3498db', file: 'NPC.ts:113' },
+                { id: 'needCrisis', label: 'Need Crisis?\n(< 20)', x: width/2 - 150, y: 270, color: '#e74c3c', file: 'NPC.ts:123' },
+                { id: 'createGoal', label: 'Create Urgent Goal\n(Survival/Escape)', x: width/2 - 150, y: 380, color: '#e74c3c', file: 'NPC.ts:126' },
+                { id: 'takeAction', label: 'Take Action\n(Highest Priority)', x: width/2 + 150, y: 270, color: '#2ecc71', file: 'NPC.ts:182' },
+                { id: 'planAction', label: 'Plan Action\n(Based on Goal Type)', x: width/2 + 150, y: 380, color: '#2ecc71', file: 'NPC.ts:207' },
+                { id: 'execute', label: 'Execute Action\n(Seek Food/Shelter)', x: width/2, y: 480, color: '#2ecc71', file: 'NPC.ts:244' },
+                { id: 'updateState', label: 'Update Database\n(Persist Changes)', x: width/2, y: 550, color: '#f39c12', file: 'NPC.ts:61' }
+            ];
+
+            const links = [
+                { source: 'tick', target: 'updateNeeds', label: '1' },
+                { source: 'tick', target: 'updateEmotions', label: '2' },
+                { source: 'tick', target: 'evaluateGoals', label: '3' },
+                { source: 'evaluateGoals', target: 'needCrisis', label: 'Check' },
+                { source: 'needCrisis', target: 'createGoal', label: 'Yes' },
+                { source: 'needCrisis', target: 'takeAction', label: 'No' },
+                { source: 'createGoal', target: 'takeAction', label: '' },
+                { source: 'takeAction', target: 'planAction', label: '' },
+                { source: 'planAction', target: 'execute', label: '' },
+                { source: 'execute', target: 'updateState', label: '' },
+                { source: 'updateState', target: 'tick', label: 'Loop', curve: true }
+            ];
+
+            // Draw links
+            const linkGroup = svg.append('g');
+            links.forEach(link => {
+                const source = states.find(s => s.id === link.source);
+                const target = states.find(s => s.id === link.target);
+
+                if (link.curve) {
+                    // Curved path for loop
+                    const path = `M ${source.x} ${source.y}
+                                 Q ${width - 50} ${(source.y + target.y) / 2}
+                                 ${target.x} ${target.y}`;
+                    linkGroup.append('path')
+                        .attr('class', 'state-link')
+                        .attr('d', path);
+                } else {
+                    // Straight line
+                    linkGroup.append('line')
+                        .attr('class', 'state-link')
+                        .attr('x1', source.x)
+                        .attr('y1', source.y + 30)
+                        .attr('x2', target.x)
+                        .attr('y2', target.y - 30);
+                }
+
+                // Link label
+                if (link.label) {
+                    linkGroup.append('text')
+                        .attr('class', 'state-link-label')
+                        .attr('x', (source.x + target.x) / 2)
+                        .attr('y', (source.y + target.y) / 2)
+                        .attr('text-anchor', 'middle')
+                        .text(link.label);
+                }
+            });
+
+            // Draw states
+            const stateGroup = svg.append('g');
+            states.forEach(state => {
+                const g = stateGroup.append('g')
+                    .attr('class', 'state-node')
+                    .attr('transform', `translate(${state.x}, ${state.y})`);
+
+                g.append('rect')
+                    .attr('x', -80)
+                    .attr('y', -25)
+                    .attr('width', 160)
+                    .attr('height', 50)
+                    .attr('rx', 5)
+                    .attr('fill', state.color);
+
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em')
+                    .selectAll('tspan')
+                    .data(state.label.split('\n'))
+                    .enter()
+                    .append('tspan')
+                    .attr('x', 0)
+                    .attr('dy', (d, i) => i * 15 - 7)
+                    .style('font-size', '13px')
+                    .text(d => d);
+
+                // Hover effect
+                g.on('mouseover', (event) => {
+                    showTooltip(`
+                        <h4>${state.label.split('\n')[0]}</h4>
+                        <p><strong>File:</strong> ${state.file}</p>
+                        <p>${getStateDescription(state.id)}</p>
+                    `, event);
+                })
+                .on('mouseout', hideTooltip);
+            });
+        }
+
+        function getStateDescription(id) {
+            const descriptions = {
+                tick: 'Main AI loop called every game hour. Coordinates all NPC decision-making.',
+                updateNeeds: 'Needs decay over time: Food -2/hour, Social -1/hour. Safety depends on location.',
+                updateEmotions: 'Emotions calculated from needs. Happiness = avg needs. Fear increases when safety < 30.',
+                evaluateGoals: 'Check existing goals and create new ones based on critical needs.',
+                needCrisis: 'Triggers when Food < 20 or Safety < 30. Creates urgent survival goals.',
+                createGoal: 'Creates Survival goal (food crisis) or Escape goal (safety crisis).',
+                takeAction: 'Selects highest priority goal and determines appropriate action.',
+                planAction: 'Maps goal type to concrete actions: seek_food, seek_shelter, search, etc.',
+                execute: 'Performs the action: updates NPC state, creates memories, modifies needs.',
+                updateState: 'Persists all changes to SQLite database via Prisma.'
+            };
+            return descriptions[id] || '';
+        }
+
+        // ==========================
+        // 2. SYSTEM DEPENDENCY GRAPH
+        // ==========================
+        function createDependencyGraph() {
+            const container = d3.select('#dependencyGraphViz');
+            const width = container.node().offsetWidth;
+            const height = 700;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // System dependency data from COMPONENTS.md
+            const systems = [
+                { id: 'database', label: 'Database\nLayer', category: 'core', size: 20, file: 'database.ts' },
+                { id: 'world', label: 'World Time\nSystem', category: 'world', size: 18, file: 'WorldSimulation.ts' },
+                { id: 'cycle', label: 'Daily Cycle\nSystem', category: 'npc', size: 16, file: 'daily-cycle-system.ts' },
+                { id: 'needs', label: 'Need-Based\nBehavior', category: 'npc', size: 16, file: 'need-based-behavior.ts' },
+                { id: 'location', label: 'Location\nSystem', category: 'world', size: 14, file: 'location-system.ts' },
+                { id: 'resource', label: 'Resource\nSystem', category: 'economy', size: 14, file: 'resource-system-with-logging.ts' },
+                { id: 'relationship', label: 'Relationship\nSystem', category: 'npc', size: 12, file: 'schema.prisma' },
+                { id: 'occupation', label: 'Occupation\nSystem', category: 'economy', size: 12, file: 'resource-system-with-logging.ts' },
+                { id: 'narrative', label: 'Narrative\nEngine', category: 'planned', size: 10, file: 'VIBEMASTER_NARRATIVE_ARCHITECTURE.md' },
+                { id: 'tech', label: 'Tech\nPropagation', category: 'planned', size: 10, file: 'INNOVATION_AND_TECH_PROPAGATION_SYSTEM.md' },
+                { id: 'travel', label: 'Travel\nSystem', category: 'planned', size: 10, file: 'TRAVEL_SYSTEM.md' }
+            ];
+
+            const connections = [
+                { source: 'database', target: 'world' },
+                { source: 'database', target: 'cycle' },
+                { source: 'database', target: 'needs' },
+                { source: 'database', target: 'location' },
+                { source: 'database', target: 'resource' },
+                { source: 'database', target: 'relationship' },
+                { source: 'world', target: 'cycle' },
+                { source: 'cycle', target: 'needs' },
+                { source: 'needs', target: 'location' },
+                { source: 'location', target: 'resource' },
+                { source: 'resource', target: 'occupation' },
+                { source: 'needs', target: 'relationship' },
+                { source: 'relationship', target: 'narrative' },
+                { source: 'location', target: 'travel' },
+                { source: 'resource', target: 'tech' },
+                { source: 'occupation', target: 'tech' }
+            ];
+
+            const categoryColors = {
+                core: '#9b59b6',
+                npc: '#3498db',
+                world: '#2ecc71',
+                economy: '#f39c12',
+                planned: '#e74c3c'
+            };
+
+            // Force simulation
+            const simulation = d3.forceSimulation(systems)
+                .force('link', d3.forceLink(connections).id(d => d.id).distance(120))
+                .force('charge', d3.forceManyBody().strength(-400))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(d => d.size * 3));
+
+            // Draw links
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(connections)
+                .enter()
+                .append('line')
+                .attr('class', 'link')
+                .attr('stroke-width', 2);
+
+            // Draw nodes
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(systems)
+                .enter()
+                .append('g')
+                .attr('class', 'node')
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+
+            node.append('circle')
+                .attr('r', d => d.size * 2)
+                .attr('fill', d => categoryColors[d.category]);
+
+            node.append('text')
+                .attr('dy', d => d.size * 2 + 15)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .selectAll('tspan')
+                .data(d => d.label.split('\n'))
+                .enter()
+                .append('tspan')
+                .attr('x', 0)
+                .attr('dy', (d, i) => i * 12)
+                .text(d => d);
+
+            // Interactivity
+            node.on('mouseover', function(event, d) {
+                // Highlight connected links
+                link.classed('highlighted', l =>
+                    l.source.id === d.id || l.target.id === d.id
+                );
+
+                showTooltip(`
+                    <h4>${d.label.replace('\n', ' ')}</h4>
+                    <p><strong>Category:</strong> ${d.category}</p>
+                    <p><strong>File:</strong> ${d.file}</p>
+                    <p><strong>Connections:</strong> ${connections.filter(l =>
+                        l.source.id === d.id || l.target.id === d.id
+                    ).length}</p>
+                `, event);
+            })
+            .on('mouseout', function() {
+                link.classed('highlighted', false);
+                hideTooltip();
+            });
+
+            // Update positions
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            // Drag functions
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        // ==========================
+        // 3. DATA FLOW DIAGRAM
+        // ==========================
+        function createDataFlow() {
+            const container = d3.select('#dataFlowViz');
+            const width = container.node().offsetWidth;
+            const height = 600;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Define arrow
+            svg.append('defs').append('marker')
+                .attr('id', 'flow-arrow')
+                .attr('viewBox', '0 0 10 10')
+                .attr('refX', 9)
+                .attr('refY', 5)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+                .attr('fill', '#3498db');
+
+            // Data flow stages
+            const stages = [
+                {
+                    id: 1,
+                    label: 'NPC State',
+                    x: 150,
+                    y: 100,
+                    color: '#ecf0f1',
+                    data: 'needFood: 45\nneedSafety: 80\noccupation: "Baker"'
+                },
+                {
+                    id: 2,
+                    label: 'updateNeeds()',
+                    x: 150,
+                    y: 220,
+                    color: '#3498db',
+                    data: 'needFood -= 2\nneedSocial -= 1'
+                },
+                {
+                    id: 3,
+                    label: 'Need Values',
+                    x: 150,
+                    y: 340,
+                    color: '#ecf0f1',
+                    data: 'needFood: 43 ⚠️\nneedSocial: 47'
+                },
+                {
+                    id: 4,
+                    label: 'updateEmotions()',
+                    x: 400,
+                    y: 100,
+                    color: '#9b59b6',
+                    data: 'happiness = avgNeeds\nfear = f(safety)'
+                },
+                {
+                    id: 5,
+                    label: 'Emotion State',
+                    x: 400,
+                    y: 220,
+                    color: '#ecf0f1',
+                    data: 'happiness: 63\nfear: 5\ntrust: 50'
+                },
+                {
+                    id: 6,
+                    label: 'evaluateGoals()',
+                    x: 650,
+                    y: 100,
+                    color: '#e74c3c',
+                    data: 'if (needFood < 20)\n  createGoal("survival")'
+                },
+                {
+                    id: 7,
+                    label: 'Goal Queue',
+                    x: 650,
+                    y: 220,
+                    color: '#ecf0f1',
+                    data: 'survival: priority 70\nwork: priority 50'
+                },
+                {
+                    id: 8,
+                    label: 'takeAction()',
+                    x: 900,
+                    y: 100,
+                    color: '#2ecc71',
+                    data: 'topGoal = "survival"\naction = "seek_food"'
+                },
+                {
+                    id: 9,
+                    label: 'executeAction()',
+                    x: 900,
+                    y: 220,
+                    color: '#2ecc71',
+                    data: 'needFood += 35\naddMemory("found_food")'
+                },
+                {
+                    id: 10,
+                    label: 'Database Update',
+                    x: 525,
+                    y: 450,
+                    color: '#34495e',
+                    data: 'UPDATE NPC SET needFood=78\nINSERT Memory ...'
+                }
+            ];
+
+            const flows = [
+                { from: 1, to: 2 },
+                { from: 2, to: 3 },
+                { from: 1, to: 4 },
+                { from: 4, to: 5 },
+                { from: 3, to: 6 },
+                { from: 5, to: 6 },
+                { from: 6, to: 7 },
+                { from: 7, to: 8 },
+                { from: 8, to: 9 },
+                { from: 3, to: 10 },
+                { from: 5, to: 10 },
+                { from: 7, to: 10 },
+                { from: 9, to: 10 }
+            ];
+
+            // Draw flows
+            const flowGroup = svg.append('g');
+            flows.forEach(flow => {
+                const from = stages.find(s => s.id === flow.from);
+                const to = stages.find(s => s.id === flow.to);
+
+                flowGroup.append('line')
+                    .attr('class', 'flow-link')
+                    .attr('x1', from.x)
+                    .attr('y1', from.y + 35)
+                    .attr('x2', to.x)
+                    .attr('y2', to.y - 35);
+            });
+
+            // Draw stages
+            const stageGroup = svg.append('g');
+            stages.forEach(stage => {
+                const g = stageGroup.append('g')
+                    .attr('class', 'flow-node')
+                    .attr('transform', `translate(${stage.x}, ${stage.y})`);
+
+                const isFunction = stage.label.includes('()');
+                const width = isFunction ? 130 : 110;
+
+                g.append('rect')
+                    .attr('x', -width/2)
+                    .attr('y', -30)
+                    .attr('width', width)
+                    .attr('height', 60)
+                    .attr('fill', stage.color)
+                    .style('cursor', 'pointer');
+
+                g.append('text')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', '0.35em')
+                    .style('font-size', '13px')
+                    .style('font-weight', isFunction ? '600' : '500')
+                    .text(stage.label);
+
+                // Hover
+                g.on('mouseover', (event) => {
+                    showTooltip(`
+                        <h4>${stage.label}</h4>
+                        <pre style="margin-top: 8px; font-size: 12px;">${stage.data}</pre>
+                    `, event);
+                })
+                .on('mouseout', hideTooltip);
+            });
+        }
+
+        // ==========================
+        // 4. DAILY CYCLE TIMELINE
+        // ==========================
+        function createTimeline() {
+            const container = document.getElementById('timelineViz');
+
+            // Sample NPC data
+            const npcs = ['Marcus (Baker)', 'Sarah (Blacksmith)', 'Thomas (Farmer)', 'Emma (Healer)'];
+
+            // Timeline items
+            const items = [];
+            let itemId = 1;
+
+            npcs.forEach((npc, npcIndex) => {
+                // Morning checkpoint
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '🌅 Wake Up',
+                    start: '2024-01-01 06:00',
+                    end: '2024-01-01 07:00',
+                    className: 'checkpoint',
+                    title: 'Morning Checkpoint: Evaluate needs, plan day'
+                });
+
+                // Work period
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '⚒️ Work',
+                    start: '2024-01-01 08:00',
+                    end: '2024-01-01 12:00',
+                    className: 'work',
+                    title: 'Perform occupation activities, produce resources'
+                });
+
+                // Midday checkpoint
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '☀️ Lunch',
+                    start: '2024-01-01 12:00',
+                    end: '2024-01-01 13:00',
+                    className: 'checkpoint',
+                    title: 'Midday Checkpoint: Eat, reassess goals'
+                });
+
+                // Afternoon work
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '⚒️ Work',
+                    start: '2024-01-01 14:00',
+                    end: '2024-01-01 18:00',
+                    className: 'work',
+                    title: 'Continue work activities'
+                });
+
+                // Evening checkpoint
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '🌆 Dinner',
+                    start: '2024-01-01 18:00',
+                    end: '2024-01-01 19:00',
+                    className: 'checkpoint',
+                    title: 'Evening Checkpoint: Eat, socialize'
+                });
+
+                // Social time
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '👥 Social',
+                    start: '2024-01-01 19:00',
+                    end: '2024-01-01 22:00',
+                    className: 'social',
+                    title: 'Social activities: tavern, family, friends'
+                });
+
+                // Night checkpoint
+                items.push({
+                    id: itemId++,
+                    group: npcIndex + 1,
+                    content: '🌙 Sleep',
+                    start: '2024-01-01 22:00',
+                    end: '2024-01-02 06:00',
+                    className: 'rest',
+                    title: 'Night Checkpoint: Prepare for rest, sleep'
+                });
+            });
+
+            const groups = npcs.map((npc, index) => ({
+                id: index + 1,
+                content: npc
+            }));
+
+            const options = {
+                width: '100%',
+                height: '400px',
+                margin: { item: 10 },
+                stack: false,
+                showCurrentTime: true,
+                zoomMin: 1000 * 60 * 60 * 2, // 2 hours
+                zoomMax: 1000 * 60 * 60 * 48, // 48 hours
+                start: '2024-01-01 00:00',
+                end: '2024-01-02 00:00'
+            };
+
+            const timeline = new vis.Timeline(container, items, groups, options);
+
+            // Add custom styles for timeline items
+            const style = document.createElement('style');
+            style.textContent = `
+                .vis-item.checkpoint { background-color: #3498db; border-color: #2980b9; color: white; }
+                .vis-item.work { background-color: #f39c12; border-color: #e67e22; color: white; }
+                .vis-item.social { background-color: #9b59b6; border-color: #8e44ad; color: white; }
+                .vis-item.rest { background-color: #2c3e50; border-color: #34495e; color: white; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // ==========================
+        // Initialize All Visualizations
+        // ==========================
+        window.addEventListener('load', () => {
+            createStateMachine();
+            createDependencyGraph();
+            createDataFlow();
+            createTimeline();
+        });
+    </script>
+</body>
+</html>
