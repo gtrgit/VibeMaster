@@ -1206,6 +1206,7 @@
             const kanbanData = {
                 done: [
                     {
+                        id: 'VM-001',
                         title: 'NPC Need-Based Behavior System',
                         description: '5 core needs (Food, Safety, Wealth, Social, Purpose) with dynamic decision-making',
                         tags: ['npc', 'core'],
@@ -1213,6 +1214,7 @@
                         file: 'need-based-behavior.ts'
                     },
                     {
+                        id: 'VM-002',
                         title: 'Daily Cycle System',
                         description: '24-hour simulation with 4 checkpoints (6:00, 12:00, 18:00, 22:00)',
                         tags: ['npc', 'world'],
@@ -1220,6 +1222,7 @@
                         file: 'daily-cycle-system.ts'
                     },
                     {
+                        id: 'VM-003',
                         title: 'Location System',
                         description: 'Physical spaces: homes, workplaces, shared locations with occupancy tracking',
                         tags: ['world'],
@@ -1227,6 +1230,7 @@
                         file: 'location-system.ts'
                     },
                     {
+                        id: 'VM-004',
                         title: 'Resource Production & Economy',
                         description: '12+ occupations with crafting chains and resource management',
                         tags: ['economy'],
@@ -1234,6 +1238,7 @@
                         file: 'resource-system-with-logging.ts'
                     },
                     {
+                        id: 'VM-005',
                         title: 'Database Schema (Prisma)',
                         description: 'Complete SQLite schema with NPC, Goal, Memory, Relationship, Location models',
                         tags: ['core'],
@@ -1241,6 +1246,7 @@
                         file: 'schema.prisma'
                     },
                     {
+                        id: 'VM-006',
                         title: 'NPC Relationship Storage',
                         description: 'Trust, affection, respect, grudge, fear values between NPCs',
                         tags: ['npc'],
@@ -1248,6 +1254,7 @@
                         file: 'schema.prisma'
                     },
                     {
+                        id: 'VM-007',
                         title: 'Web Studio (Voice Input)',
                         description: 'Browser-based voice-to-JSON scene creator with ElevenLabs + Claude',
                         tags: ['ui'],
@@ -1255,15 +1262,15 @@
                         file: 'vibemaster-studio.html'
                     },
                     {
+                        id: 'VM-008',
                         title: 'Interactive Visualizations',
                         description: 'State machines, dependency graphs, data flow, timeline, and kanban',
                         tags: ['ui'],
                         priority: 'low',
                         file: 'vibemaster-visualizations.html'
-                    }
-                ],
-                progress: [
+                    },
                     {
+                        id: 'VM-009',
                         title: 'Database Integration (Tauri)',
                         description: 'Connect Prisma/SQLite to Phaser game engine via Tauri',
                         tags: ['core'],
@@ -1271,6 +1278,7 @@
                         file: 'database.ts'
                     },
                     {
+                        id: 'VM-010',
                         title: 'Visual NPC Rendering',
                         description: 'Display NPCs in Phaser with sprite animations and location updates',
                         tags: ['ui', 'world'],
@@ -1278,15 +1286,17 @@
                         file: 'main.ts'
                     },
                     {
+                        id: 'VM-011',
                         title: 'Player Character System',
                         description: 'Player movement, interaction, and world exploration',
                         tags: ['core', 'ui'],
                         priority: 'medium',
-                        file: 'Not yet created'
+                        file: 'main.ts'
                     }
                 ],
-                todo: [
+                progress: [
                     {
+                        id: 'VM-012',
                         title: 'Player-NPC Conversation System',
                         description: 'Natural language dialogue with Claude API integration',
                         tags: ['npc', 'planned'],
@@ -1294,6 +1304,17 @@
                         file: 'conversation-system.ts (planned)'
                     },
                     {
+                        id: 'VM-013',
+                        title: 'Quest Generation System',
+                        description: 'Dynamic quest creation based on NPC goals and world events',
+                        tags: ['npc', 'planned'],
+                        priority: 'medium',
+                        file: 'quest-generator.ts (planned)'
+                    }
+                ],
+                todo: [
+                    {
+                        id: 'VM-014',
                         title: 'Narrative Generation Engine',
                         description: 'Claude-powered dynamic storytelling with context awareness',
                         tags: ['npc', 'planned'],
@@ -1301,6 +1322,7 @@
                         file: 'VIBEMASTER_NARRATIVE_ARCHITECTURE.md'
                     },
                     {
+                        id: 'VM-015',
                         title: 'Natural Language World Queries',
                         description: 'Ask questions about NPCs, events, and world state in plain English',
                         tags: ['ui', 'planned'],
@@ -1308,13 +1330,7 @@
                         file: 'query-parser.ts (planned)'
                     },
                     {
-                        title: 'Quest Generation System',
-                        description: 'Dynamic quest creation based on NPC goals and world events',
-                        tags: ['npc', 'planned'],
-                        priority: 'medium',
-                        file: 'quest-generator.ts (planned)'
-                    },
-                    {
+                        id: 'VM-016',
                         title: 'Tech Propagation System',
                         description: 'NPCs discover, learn, and spread innovations (60-page design complete)',
                         tags: ['economy', 'planned'],
@@ -1322,6 +1338,7 @@
                         file: 'INNOVATION_AND_TECH_PROPAGATION_SYSTEM.md'
                     },
                     {
+                        id: 'VM-017',
                         title: 'Travel & Transportation',
                         description: 'Inter-settlement movement with distance/time calculations',
                         tags: ['world', 'planned'],
@@ -1329,6 +1346,7 @@
                         file: 'TRAVEL_SYSTEM.md'
                     },
                     {
+                        id: 'VM-018',
                         title: 'Faction Formation System',
                         description: 'Economic specialization and group dynamics',
                         tags: ['economy', 'planned'],
@@ -1336,6 +1354,7 @@
                         file: 'service_faction_formation.md'
                     },
                     {
+                        id: 'VM-019',
                         title: 'Efficiency Metrics & Detection',
                         description: 'Track resource bottlenecks to trigger innovation',
                         tags: ['economy', 'planned'],
@@ -1350,7 +1369,10 @@
                 const tags = item.tags.map(tag => `<span class="kanban-tag tag-${tag}">${tag}</span>`).join('');
                 return `
                     <div class="kanban-card priority-${item.priority}">
-                        <h4>${item.title}</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h4 style="margin: 0;">${item.title}</h4>
+                            <span style="font-size: 0.75em; color: #95a5a6; font-weight: 600; white-space: nowrap; margin-left: 8px;">${item.id}</span>
+                        </div>
                         <p>${item.description}</p>
                         <div class="kanban-tags">
                             ${tags}
