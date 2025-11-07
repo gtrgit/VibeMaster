@@ -1407,6 +1407,37 @@
             // Render kanban cards
             function renderCard(item) {
                 const tags = item.tags.map(tag => `<span class="kanban-tag tag-${tag}">${tag}</span>`).join('');
+
+                // Generate GitHub link for file
+                let fileDisplay = item.file;
+                const isPlanned = item.file.includes('(planned)');
+
+                if (!isPlanned) {
+                    // Construct GitHub URL based on file type
+                    let filePath = '';
+                    const fileName = item.file;
+
+                    // Determine file path based on file type
+                    if (fileName.endsWith('.ts') && fileName.includes('system')) {
+                        filePath = `src/systems/npc/${fileName}`;
+                    } else if (fileName.endsWith('.ts')) {
+                        filePath = `src/${fileName}`;
+                    } else if (fileName === 'schema.prisma') {
+                        filePath = `prisma/${fileName}`;
+                    } else if (fileName.endsWith('.html')) {
+                        filePath = fileName === 'vibemaster-visualizations.html' ? `visualizations/${fileName}` : fileName;
+                    } else if (fileName.endsWith('.MD') || fileName.endsWith('.md')) {
+                        filePath = `docs/${fileName}`;
+                    } else if (fileName.endsWith('.TS')) {
+                        filePath = `docs/${fileName}`;
+                    }
+
+                    const githubUrl = `https://github.com/gtrgit/VibeMaster/blob/main/${filePath}`;
+                    fileDisplay = `<a href="${githubUrl}" target="_blank" style="color: #3498db; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">📁 ${fileName}</a>`;
+                } else {
+                    fileDisplay = `📁 ${item.file}`;
+                }
+
                 return `
                     <div class="kanban-card priority-${item.priority}">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
@@ -1418,7 +1449,7 @@
                             ${tags}
                         </div>
                         <p style="margin-top: 8px; font-size: 0.8em; color: #95a5a6;">
-                            📁 ${item.file}
+                            ${fileDisplay}
                         </p>
                     </div>
                 `;
