@@ -99,6 +99,8 @@
         .viz-container {
             min-height: 600px;
             position: relative;
+            overflow-x: auto;
+            width: 100%;
         }
 
         h2 {
@@ -617,12 +619,14 @@
             const container = d3.select('#dependencyGraphViz');
             const height = 700;
 
-            // Create SVG and let CSS determine width
-            const svg = container.append('svg')
-                .attr('height', height);
+            // Get container width before creating SVG
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = containerWidth || 1200; // Fallback width
 
-            // Get actual rendered width after SVG is added to DOM
-            const width = svg.node().getBoundingClientRect().width;
+            // Create SVG with calculated width
+            const svg = container.append('svg')
+                .attr('height', height)
+                .style('width', '100%');
 
             // System dependency data from COMPONENTS.md
             const systems = [
