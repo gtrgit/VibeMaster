@@ -316,6 +316,105 @@
         .status-progress { background: #f39c12; color: white; }
         .status-planned { background: #95a5a6; color: white; }
 
+        /* Kanban Board Styles */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .kanban-column {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+        }
+
+        .kanban-column h3 {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+            font-size: 1.2em;
+        }
+
+        .kanban-column.todo h3 {
+            color: #95a5a6;
+            border-color: #95a5a6;
+        }
+
+        .kanban-column.in-progress h3 {
+            color: #f39c12;
+            border-color: #f39c12;
+        }
+
+        .kanban-column.done h3 {
+            color: #2ecc71;
+            border-color: #2ecc71;
+        }
+
+        .kanban-card {
+            background: white;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .kanban-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .kanban-card.priority-high {
+            border-left-color: #e74c3c;
+        }
+
+        .kanban-card.priority-medium {
+            border-left-color: #f39c12;
+        }
+
+        .kanban-card.priority-low {
+            border-left-color: #3498db;
+        }
+
+        .kanban-card h4 {
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        .kanban-card p {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .kanban-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .kanban-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .tag-core { background: #e8d5f2; color: #8e44ad; }
+        .tag-npc { background: #d6eaf8; color: #2980b9; }
+        .tag-world { background: #d5f4e6; color: #27ae60; }
+        .tag-economy { background: #fdebd0; color: #d68910; }
+        .tag-ui { background: #fadbd8; color: #c0392b; }
+        .tag-planned { background: #ecf0f1; color: #7f8c8d; }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tabs {
@@ -340,6 +439,7 @@
             <button class="tab-button" data-tab="dependency-graph">System Dependencies</button>
             <button class="tab-button" data-tab="data-flow">Data Flow</button>
             <button class="tab-button" data-tab="timeline">Daily Cycle Timeline</button>
+            <button class="tab-button" data-tab="kanban">Project Kanban</button>
         </div>
 
         <!-- Tab 1: NPC Behavior State Machine -->
@@ -425,6 +525,42 @@
                     <strong>Note:</strong> Between checkpoints, NPCs continue their planned activities.
                     Needs decay over time, triggering urgent goals if thresholds are reached.
                 </p>
+            </div>
+        </div>
+
+        <!-- Tab 5: Project Kanban -->
+        <div id="kanban" class="tab-content">
+            <h2>📋 Project Kanban Board</h2>
+            <div class="description">
+                <strong>Development status:</strong> Track VibeMaster's features from planning to completion.
+                Based on actual implementation status from <span class="code-ref">COMPONENTS.md</span> and codebase analysis.
+                <br><br>
+                <strong>Legend:</strong>
+                <span class="kanban-tag tag-core">Core</span>
+                <span class="kanban-tag tag-npc">NPC</span>
+                <span class="kanban-tag tag-world">World</span>
+                <span class="kanban-tag tag-economy">Economy</span>
+                <span class="kanban-tag tag-ui">UI</span>
+                <span class="kanban-tag tag-planned">Planned</span>
+            </div>
+            <div class="kanban-board">
+                <!-- Column 1: To Do -->
+                <div class="kanban-column todo">
+                    <h3>📝 To Do</h3>
+                    <div id="kanban-todo"></div>
+                </div>
+
+                <!-- Column 2: In Progress -->
+                <div class="kanban-column in-progress">
+                    <h3>⚙️ In Progress</h3>
+                    <div id="kanban-progress"></div>
+                </div>
+
+                <!-- Column 3: Done -->
+                <div class="kanban-column done">
+                    <h3>✅ Done</h3>
+                    <div id="kanban-done"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -1063,6 +1199,185 @@
         }
 
         // ==========================
+        // 5. PROJECT KANBAN BOARD
+        // ==========================
+        function createKanban() {
+            // Kanban data based on COMPONENTS.md and actual implementation status
+            const kanbanData = {
+                done: [
+                    {
+                        title: 'NPC Need-Based Behavior System',
+                        description: '5 core needs (Food, Safety, Wealth, Social, Purpose) with dynamic decision-making',
+                        tags: ['npc', 'core'],
+                        priority: 'high',
+                        file: 'need-based-behavior.ts'
+                    },
+                    {
+                        title: 'Daily Cycle System',
+                        description: '24-hour simulation with 4 checkpoints (6:00, 12:00, 18:00, 22:00)',
+                        tags: ['npc', 'world'],
+                        priority: 'high',
+                        file: 'daily-cycle-system.ts'
+                    },
+                    {
+                        title: 'Location System',
+                        description: 'Physical spaces: homes, workplaces, shared locations with occupancy tracking',
+                        tags: ['world'],
+                        priority: 'high',
+                        file: 'location-system.ts'
+                    },
+                    {
+                        title: 'Resource Production & Economy',
+                        description: '12+ occupations with crafting chains and resource management',
+                        tags: ['economy'],
+                        priority: 'high',
+                        file: 'resource-system-with-logging.ts'
+                    },
+                    {
+                        title: 'Database Schema (Prisma)',
+                        description: 'Complete SQLite schema with NPC, Goal, Memory, Relationship, Location models',
+                        tags: ['core'],
+                        priority: 'high',
+                        file: 'schema.prisma'
+                    },
+                    {
+                        title: 'NPC Relationship Storage',
+                        description: 'Trust, affection, respect, grudge, fear values between NPCs',
+                        tags: ['npc'],
+                        priority: 'medium',
+                        file: 'schema.prisma'
+                    },
+                    {
+                        title: 'Web Studio (Voice Input)',
+                        description: 'Browser-based voice-to-JSON scene creator with ElevenLabs + Claude',
+                        tags: ['ui'],
+                        priority: 'medium',
+                        file: 'vibemaster-studio.html'
+                    },
+                    {
+                        title: 'Interactive Visualizations',
+                        description: 'State machines, dependency graphs, data flow, timeline, and kanban',
+                        tags: ['ui'],
+                        priority: 'low',
+                        file: 'vibemaster-visualizations.html'
+                    }
+                ],
+                progress: [
+                    {
+                        title: 'Database Integration (Tauri)',
+                        description: 'Connect Prisma/SQLite to Phaser game engine via Tauri',
+                        tags: ['core'],
+                        priority: 'high',
+                        file: 'database.ts'
+                    },
+                    {
+                        title: 'Visual NPC Rendering',
+                        description: 'Display NPCs in Phaser with sprite animations and location updates',
+                        tags: ['ui', 'world'],
+                        priority: 'high',
+                        file: 'main.ts'
+                    },
+                    {
+                        title: 'Player Character System',
+                        description: 'Player movement, interaction, and world exploration',
+                        tags: ['core', 'ui'],
+                        priority: 'medium',
+                        file: 'Not yet created'
+                    }
+                ],
+                todo: [
+                    {
+                        title: 'Player-NPC Conversation System',
+                        description: 'Natural language dialogue with Claude API integration',
+                        tags: ['npc', 'planned'],
+                        priority: 'high',
+                        file: 'conversation-system.ts (planned)'
+                    },
+                    {
+                        title: 'Narrative Generation Engine',
+                        description: 'Claude-powered dynamic storytelling with context awareness',
+                        tags: ['npc', 'planned'],
+                        priority: 'high',
+                        file: 'VIBEMASTER_NARRATIVE_ARCHITECTURE.md'
+                    },
+                    {
+                        title: 'Natural Language World Queries',
+                        description: 'Ask questions about NPCs, events, and world state in plain English',
+                        tags: ['ui', 'planned'],
+                        priority: 'medium',
+                        file: 'query-parser.ts (planned)'
+                    },
+                    {
+                        title: 'Quest Generation System',
+                        description: 'Dynamic quest creation based on NPC goals and world events',
+                        tags: ['npc', 'planned'],
+                        priority: 'medium',
+                        file: 'quest-generator.ts (planned)'
+                    },
+                    {
+                        title: 'Tech Propagation System',
+                        description: 'NPCs discover, learn, and spread innovations (60-page design complete)',
+                        tags: ['economy', 'planned'],
+                        priority: 'medium',
+                        file: 'INNOVATION_AND_TECH_PROPAGATION_SYSTEM.md'
+                    },
+                    {
+                        title: 'Travel & Transportation',
+                        description: 'Inter-settlement movement with distance/time calculations',
+                        tags: ['world', 'planned'],
+                        priority: 'low',
+                        file: 'TRAVEL_SYSTEM.md'
+                    },
+                    {
+                        title: 'Faction Formation System',
+                        description: 'Economic specialization and group dynamics',
+                        tags: ['economy', 'planned'],
+                        priority: 'low',
+                        file: 'service_faction_formation.md'
+                    },
+                    {
+                        title: 'Efficiency Metrics & Detection',
+                        description: 'Track resource bottlenecks to trigger innovation',
+                        tags: ['economy', 'planned'],
+                        priority: 'low',
+                        file: 'EFFICIENCY_DETECTION_AND_METRICS_SYSTEM.md'
+                    }
+                ]
+            };
+
+            // Render kanban cards
+            function renderCard(item) {
+                const tags = item.tags.map(tag => `<span class="kanban-tag tag-${tag}">${tag}</span>`).join('');
+                return `
+                    <div class="kanban-card priority-${item.priority}">
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                        <div class="kanban-tags">
+                            ${tags}
+                        </div>
+                        <p style="margin-top: 8px; font-size: 0.8em; color: #95a5a6;">
+                            📁 ${item.file}
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Populate columns
+            document.getElementById('kanban-done').innerHTML = kanbanData.done.map(renderCard).join('');
+            document.getElementById('kanban-progress').innerHTML = kanbanData.progress.map(renderCard).join('');
+            document.getElementById('kanban-todo').innerHTML = kanbanData.todo.map(renderCard).join('');
+
+            // Add click handlers to show tooltips
+            document.querySelectorAll('.kanban-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const title = this.querySelector('h4').textContent;
+                    const desc = this.querySelector('p').textContent;
+                    alert(`${title}\n\n${desc}\n\nClick on the System Dependencies tab to see how this fits into the architecture.`);
+                });
+            });
+        }
+
+        // ==========================
         // Initialize All Visualizations
         // ==========================
         window.addEventListener('load', () => {
@@ -1070,6 +1385,7 @@
             createDependencyGraph();
             createDataFlow();
             createTimeline();
+            createKanban();
         });
     </script>
 </body>
