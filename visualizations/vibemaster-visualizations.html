@@ -185,6 +185,7 @@
         .dependency-graph svg {
             width: 100%;
             height: 700px;
+            display: block;
         }
 
         .node circle {
@@ -614,12 +615,14 @@
         // ==========================
         function createDependencyGraph() {
             const container = d3.select('#dependencyGraphViz');
-            const width = container.node().offsetWidth;
             const height = 700;
 
+            // Create SVG and let CSS determine width
             const svg = container.append('svg')
-                .attr('width', width)
                 .attr('height', height);
+
+            // Get actual rendered width after SVG is added to DOM
+            const width = svg.node().getBoundingClientRect().width;
 
             // System dependency data from COMPONENTS.md
             const systems = [
