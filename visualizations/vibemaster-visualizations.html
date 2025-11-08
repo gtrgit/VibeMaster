@@ -1389,8 +1389,8 @@
 
             nodes.append('text')
                 .attr('dy', '0.31em')
-                .attr('x', d => d.children ? -10 : 10)
-                .attr('text-anchor', d => d.children ? 'end' : 'start')
+                .attr('x', 10)
+                .attr('text-anchor', 'start')
                 .text(d => d.data.name)
                 .style('font-size', '11px')
                 .style('fill', '#2c3e50');
