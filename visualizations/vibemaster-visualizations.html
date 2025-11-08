@@ -439,6 +439,8 @@
             <button class="tab-button" data-tab="dependency-graph">System Dependencies</button>
             <button class="tab-button" data-tab="data-flow">Data Flow</button>
             <button class="tab-button" data-tab="timeline">Daily Cycle Timeline</button>
+            <button class="tab-button" data-tab="resource-tree">Resource Chains</button>
+            <button class="tab-button" data-tab="tech-tree">Tech Tree</button>
             <button class="tab-button" data-tab="kanban">Project Kanban</button>
         </div>
 
@@ -528,7 +530,58 @@
             </div>
         </div>
 
-        <!-- Tab 5: Project Kanban -->
+        <!-- Tab 5: Resource Chains -->
+        <div id="resource-tree" class="tab-content">
+            <h2>🔗 Resource Production Chains <span class="status-badge status-planned">Designed</span></h2>
+            <div class="description">
+                <strong>Deep production system:</strong> Shows how raw resources transform through multiple crafting stages.
+                From depth 0 (gathering) to depth 7+ (legendary items). Based on quality tiers and skill requirements.
+                <br><br>
+                <strong>Design Doc:</strong> <span class="code-ref">deep-production-chains.ts</span>
+            </div>
+            <div class="viz-container" id="resourceTreeViz"></div>
+            <div class="info-panel">
+                <h3>Production Depth Levels</h3>
+                <ul>
+                    <li><strong>Depth 0:</strong> Raw gathering (berries, herbs, stone, raw ore)</li>
+                    <li><strong>Depth 1-2:</strong> Basic processing (wood → planks, wheat → flour → bread)</li>
+                    <li><strong>Depth 3-4:</strong> Intermediate crafting (ore → ingots → tools)</li>
+                    <li><strong>Depth 5-6:</strong> Advanced production (steel → quality weapons)</li>
+                    <li><strong>Depth 7+:</strong> Masterwork & legendary (enchanted items, masterwork gear)</li>
+                </ul>
+                <p style="margin-top: 15px; color: #7f8c8d;">
+                    <strong>Quality Tiers:</strong> Crude → Basic → Quality → Masterwork → Legendary
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab 6: Tech Tree -->
+        <div id="tech-tree" class="tab-content">
+            <h2>🔬 Technology Tree <span class="status-badge status-planned">Designed</span></h2>
+            <div class="description">
+                <strong>Innovation progression:</strong> Shows technology dependencies and unlock paths.
+                NPCs spontaneously invent technologies when pressure, capability, and opportunity align.
+                <br><br>
+                <strong>Design Docs:</strong> <span class="code-ref">SPONTANEOUS_INNOVATION_DESIGN.md</span> + <span class="code-ref">INNOVATION_AND_TECH_PROPAGATION_SYSTEM.md</span>
+            </div>
+            <div class="viz-container" id="techTreeViz"></div>
+            <div class="info-panel">
+                <h3>Tech Categories</h3>
+                <ul>
+                    <li><strong>Agriculture:</strong> Crop rotation, irrigation, fertilization</li>
+                    <li><strong>Crafting:</strong> Specialized tools, advanced techniques, quality improvements</li>
+                    <li><strong>Infrastructure:</strong> Water systems, roads, storage, mills</li>
+                    <li><strong>Knowledge:</strong> Writing, mathematics, record-keeping, education</li>
+                    <li><strong>Metallurgy:</strong> Smelting, alloying, forging techniques</li>
+                    <li><strong>Social:</strong> Trade networks, contracts, banking, guilds</li>
+                </ul>
+                <p style="margin-top: 15px; color: #7f8c8d;">
+                    <strong>Unlock Requirements:</strong> Tech adoption spreads through teaching, literacy, and economic pressure
+                </p>
+            </div>
+        </div>
+
+        <!-- Tab 7: Project Kanban -->
         <div id="kanban" class="tab-content">
             <h2>📋 Project Kanban Board</h2>
             <div class="description">
@@ -1199,7 +1252,304 @@
         }
 
         // ==========================
-        // 5. PROJECT KANBAN BOARD
+        // 5. RESOURCE PRODUCTION CHAINS
+        // ==========================
+        function createResourceTree() {
+            const container = d3.select('#resourceTreeViz');
+            const width = container.node().offsetWidth;
+            const height = 700;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Sample resource chain data (simplified from deep-production-chains)
+            const resourceData = {
+                name: "Resources",
+                children: [
+                    {
+                        name: "Food Chain",
+                        depth: 0,
+                        children: [
+                            { name: "Wheat (D0)", depth: 0, quality: "Raw" },
+                            {
+                                name: "Flour (D1)",
+                                depth: 1,
+                                quality: "Basic",
+                                children: [
+                                    { name: "Bread (D2)", depth: 2, quality: "Basic" },
+                                    { name: "Quality Bread (D2)", depth: 2, quality: "Quality" }
+                                ]
+                            },
+                            { name: "Berries (D0)", depth: 0, quality: "Raw" }
+                        ]
+                    },
+                    {
+                        name: "Wood Chain",
+                        depth: 0,
+                        children: [
+                            { name: "Raw Wood (D0)", depth: 0, quality: "Raw" },
+                            {
+                                name: "Planks (D1)",
+                                depth: 1,
+                                quality: "Basic",
+                                children: [
+                                    { name: "Furniture (D2)", depth: 2, quality: "Basic" },
+                                    {
+                                        name: "Quality Furniture (D3)",
+                                        depth: 3,
+                                        quality: "Quality",
+                                        children: [
+                                            { name: "Masterwork Furniture (D4)", depth: 4, quality: "Masterwork" }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        name: "Metal Chain",
+                        depth: 0,
+                        children: [
+                            { name: "Raw Ore (D0)", depth: 0, quality: "Raw" },
+                            {
+                                name: "Iron Ingots (D1)",
+                                depth: 1,
+                                quality: "Basic",
+                                children: [
+                                    { name: "Iron Tools (D2)", depth: 2, quality: "Basic" },
+                                    {
+                                        name: "Steel (D3)",
+                                        depth: 3,
+                                        quality: "Quality",
+                                        children: [
+                                            { name: "Steel Weapons (D4)", depth: 4, quality: "Quality" },
+                                            {
+                                                name: "Masterwork Weapons (D5)",
+                                                depth: 5,
+                                                quality: "Masterwork",
+                                                children: [
+                                                    { name: "Legendary Sword (D7)", depth: 7, quality: "Legendary" }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            // Create tree layout
+            const treeLayout = d3.tree().size([width - 100, height - 200]);
+            const root = d3.hierarchy(resourceData);
+            treeLayout(root);
+
+            // Color by depth
+            const depthColors = {
+                0: '#95a5a6',  // Raw - Gray
+                1: '#3498db',  // Basic - Blue
+                2: '#2ecc71',  // Intermediate - Green
+                3: '#f39c12',  // Advanced - Orange
+                4: '#e74c3c',  // Quality - Red
+                5: '#9b59b6',  // Masterwork - Purple
+                6: '#1abc9c',  // Legendary - Teal
+                7: '#e91e63'   // Legendary+ - Pink
+            };
+
+            // Draw links
+            svg.append('g')
+                .selectAll('path')
+                .data(root.links())
+                .enter()
+                .append('path')
+                .attr('d', d3.linkVertical()
+                    .x(d => d.x)
+                    .y(d => d.y + 100)
+                )
+                .attr('fill', 'none')
+                .attr('stroke', '#95a5a6')
+                .attr('stroke-width', 2);
+
+            // Draw nodes
+            const nodes = svg.append('g')
+                .selectAll('g')
+                .data(root.descendants())
+                .enter()
+                .append('g')
+                .attr('transform', d => `translate(${d.x}, ${d.y + 100})`);
+
+            nodes.append('circle')
+                .attr('r', d => d.depth === 0 ? 8 : 6)
+                .attr('fill', d => depthColors[d.data.depth] || '#34495e')
+                .attr('stroke', 'white')
+                .attr('stroke-width', 2);
+
+            nodes.append('text')
+                .attr('dy', '0.31em')
+                .attr('x', d => d.children ? -10 : 10)
+                .attr('text-anchor', d => d.children ? 'end' : 'start')
+                .text(d => d.data.name)
+                .style('font-size', '11px')
+                .style('fill', '#2c3e50');
+
+            // Add hover tooltips
+            nodes.on('mouseover', function(event, d) {
+                if (d.data.depth !== undefined) {
+                    showTooltip(`
+                        <h4>${d.data.name}</h4>
+                        <p><strong>Depth:</strong> ${d.data.depth}</p>
+                        <p><strong>Quality:</strong> ${d.data.quality || 'N/A'}</p>
+                    `, event);
+                }
+            })
+            .on('mouseout', hideTooltip);
+        }
+
+        // ==========================
+        // 6. TECHNOLOGY TREE
+        // ==========================
+        function createTechTree() {
+            const container = d3.select('#techTreeViz');
+            const width = container.node().offsetWidth;
+            const height = 700;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Tech tree data based on innovation system
+            const techs = [
+                { id: 'basic-tools', name: 'Basic Tools', category: 'crafting', tier: 0, x: 200, y: 350 },
+                { id: 'agriculture', name: 'Agriculture', category: 'agriculture', tier: 0, x: 400, y: 150 },
+                { id: 'fire', name: 'Fire Control', category: 'infrastructure', tier: 0, x: 600, y: 350 },
+
+                { id: 'crop-rotation', name: 'Crop Rotation', category: 'agriculture', tier: 1, x: 300, y: 100 },
+                { id: 'irrigation', name: 'Irrigation', category: 'agriculture', tier: 1, x: 500, y: 100 },
+                { id: 'smelting', name: 'Smelting', category: 'metallurgy', tier: 1, x: 700, y: 300 },
+                { id: 'specialized-tools', name: 'Specialized Tools', category: 'crafting', tier: 1, x: 200, y: 250 },
+
+                { id: 'writing', name: 'Writing', category: 'knowledge', tier: 2, x: 400, y: 50 },
+                { id: 'steel', name: 'Steel Making', category: 'metallurgy', tier: 2, x: 800, y: 250 },
+                { id: 'water-systems', name: 'Water Systems', category: 'infrastructure', tier: 2, x: 600, y: 200 },
+
+                { id: 'education', name: 'Education', category: 'knowledge', tier: 3, x: 300, y: 50 },
+                { id: 'advanced-metallurgy', name: 'Advanced Metallurgy', category: 'metallurgy', tier: 3, x: 900, y: 200 },
+                { id: 'trade-networks', name: 'Trade Networks', category: 'social', tier: 3, x: 700, y: 150 }
+            ];
+
+            const links = [
+                { source: 'basic-tools', target: 'specialized-tools' },
+                { source: 'agriculture', target: 'crop-rotation' },
+                { source: 'agriculture', target: 'irrigation' },
+                { source: 'fire', target: 'smelting' },
+                { source: 'crop-rotation', target: 'writing' },
+                { source: 'irrigation', target: 'water-systems' },
+                { source: 'smelting', target: 'steel' },
+                { source: 'writing', target: 'education' },
+                { source: 'steel', target: 'advanced-metallurgy' },
+                { source: 'water-systems', target: 'trade-networks' }
+            ];
+
+            const categoryColors = {
+                agriculture: '#27ae60',
+                crafting: '#3498db',
+                infrastructure: '#95a5a6',
+                knowledge: '#9b59b6',
+                metallurgy: '#e74c3c',
+                social: '#f39c12'
+            };
+
+            // Draw links first
+            const linkElements = svg.append('g')
+                .selectAll('line')
+                .data(links)
+                .enter()
+                .append('line')
+                .attr('x1', d => {
+                    const source = techs.find(t => t.id === d.source);
+                    return source.x;
+                })
+                .attr('y1', d => {
+                    const source = techs.find(t => t.id === d.source);
+                    return source.y;
+                })
+                .attr('x2', d => {
+                    const target = techs.find(t => t.id === d.target);
+                    return target.x;
+                })
+                .attr('y2', d => {
+                    const target = techs.find(t => t.id === d.target);
+                    return target.y;
+                })
+                .attr('stroke', '#bdc3c7')
+                .attr('stroke-width', 2)
+                .attr('marker-end', 'url(#tech-arrow)');
+
+            // Add arrow marker
+            svg.append('defs').append('marker')
+                .attr('id', 'tech-arrow')
+                .attr('viewBox', '0 0 10 10')
+                .attr('refX', 25)
+                .attr('refY', 5)
+                .attr('markerWidth', 6)
+                .attr('markerHeight', 6)
+                .attr('orient', 'auto')
+                .append('path')
+                .attr('d', 'M 0 0 L 10 5 L 0 10 z')
+                .attr('fill', '#bdc3c7');
+
+            // Draw tech nodes
+            const techNodes = svg.append('g')
+                .selectAll('g')
+                .data(techs)
+                .enter()
+                .append('g')
+                .attr('transform', d => `translate(${d.x}, ${d.y})`)
+                .style('cursor', 'pointer');
+
+            techNodes.append('circle')
+                .attr('r', 15)
+                .attr('fill', d => categoryColors[d.category])
+                .attr('stroke', 'white')
+                .attr('stroke-width', 3);
+
+            techNodes.append('text')
+                .attr('dy', 25)
+                .attr('text-anchor', 'middle')
+                .text(d => d.name)
+                .style('font-size', '11px')
+                .style('font-weight', '600')
+                .style('fill', '#2c3e50');
+
+            // Tier indicator
+            techNodes.append('text')
+                .attr('dy', '0.35em')
+                .attr('text-anchor', 'middle')
+                .text(d => `T${d.tier}`)
+                .style('font-size', '9px')
+                .style('fill', 'white')
+                .style('font-weight', '700')
+                .style('pointer-events', 'none');
+
+            // Hover effects
+            techNodes.on('mouseover', function(event, d) {
+                showTooltip(`
+                    <h4>${d.name}</h4>
+                    <p><strong>Category:</strong> ${d.category}</p>
+                    <p><strong>Tier:</strong> ${d.tier}</p>
+                    <p><strong>Prerequisites:</strong> ${links.filter(l => l.target === d.id).map(l => {
+                        const src = techs.find(t => t.id === l.source);
+                        return src.name;
+                    }).join(', ') || 'None'}</p>
+                `, event);
+            })
+            .on('mouseout', hideTooltip);
+        }
+
+        // ==========================
+        // 7. PROJECT KANBAN BOARD
         // ==========================
         function createKanban() {
             // Kanban data based on COMPONENTS.md and actual implementation status
@@ -1518,6 +1868,8 @@
             createDependencyGraph();
             createDataFlow();
             createTimeline();
+            createResourceTree();
+            createTechTree();
             createKanban();
         });
     </script>
