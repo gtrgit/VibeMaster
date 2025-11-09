@@ -1692,6 +1692,56 @@
                         file: 'npc-quest-generator.ts (planned)'
                     },
                     {
+                        id: 'VM-035',
+                        title: 'Hierarchical Safety - Core Infrastructure',
+                        description: 'Two-tier spatial safety system: town-level safety from map threats, then NPC proximity adjustments. Add Continent, ThreatSource, Town models. Add spatial coordinates (homeX/Y, workX/Y) to NPCs. Migration script for existing data',
+                        tags: ['world', 'npc', 'core'],
+                        priority: 'high',
+                        file: 'HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/02_systems/world/HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md'
+                    },
+                    {
+                        id: 'VM-036',
+                        title: 'Hierarchical Safety - World Builder',
+                        description: 'World creation pipeline: continent → towns → threats → NPCs → calculate safety. Town population generation with spatial distribution, safe home location algorithm avoiding threats, initial safety calculations',
+                        tags: ['world', 'core'],
+                        priority: 'high',
+                        file: 'HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/02_systems/world/HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md'
+                    },
+                    {
+                        id: 'VM-037',
+                        title: 'Hierarchical Safety - NPC Proximity System',
+                        description: 'K-nearest threats algorithm for individual NPC safety (town base + proximity adjustments). Integration with need-based behavior. Performance optimization with spatial indexing for large worlds',
+                        tags: ['npc', 'world'],
+                        priority: 'high',
+                        file: 'HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/02_systems/world/HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md'
+                    },
+                    {
+                        id: 'VM-038',
+                        title: 'Hierarchical Safety - Dynamic Updates',
+                        description: 'Threat spawn/clear mechanics, recalculation triggers when threats change, town and NPC safety updates, event system integration for threat notifications',
+                        tags: ['world', 'npc'],
+                        priority: 'high',
+                        file: 'HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/02_systems/world/HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md'
+                    },
+                    {
+                        id: 'VM-039',
+                        title: 'Hierarchical Safety - Gameplay Integration',
+                        description: 'Quest generation from threats ("flee from wolves"), migration system (move to safer towns), community defense quests, property value adjustments based on safety, narrative integration',
+                        tags: ['gameplay', 'narrative', 'economy'],
+                        priority: 'high',
+                        file: 'HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/02_systems/world/HIERARCHICAL_SPATIAL_SAFETY_SYSTEM.md'
+                    },
+                    {
                         id: 'VM-021',
                         title: 'NPC Stats Configuration Table',
                         description: 'Configurable rules for adding/subtracting NPC stats (needs, emotions, relationships) with tweakable values and modifiers',
