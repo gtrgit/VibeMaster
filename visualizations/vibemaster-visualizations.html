@@ -1684,6 +1684,46 @@
                 ],
                 todo: [
                     {
+                        id: 'VM-041',
+                        title: 'Circle-Based World Generation - Core Generator',
+                        description: 'Hierarchical circle system that spawns from PopulationCircle → WealthCircle → Demographics → Services → Demands. Bridges VibeMaster Studio voice input to living world simulation. Create circle-types.ts, circle-spawning-rules.ts, test with console output',
+                        tags: ['world', 'procedural', 'core'],
+                        priority: 'high',
+                        file: 'CIRCLE_BASED_WORLD_GENERATION.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/03_implementation/CIRCLE_BASED_WORLD_GENERATION.md'
+                    },
+                    {
+                        id: 'VM-042',
+                        title: 'Circle-Based World Generation - Database Integration',
+                        description: 'Bridge circles to Prisma database: convert demographics to NPCs with personalities, services to locations, demands to goals. Create studio-to-simulation-bridge.ts and circle-to-prisma.ts. Populate database from circle hierarchy',
+                        tags: ['world', 'procedural', 'core'],
+                        priority: 'high',
+                        file: 'CIRCLE_BASED_WORLD_GENERATION.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/03_implementation/CIRCLE_BASED_WORLD_GENERATION.md'
+                    },
+                    {
+                        id: 'VM-043',
+                        title: 'Circle-Based World Generation - Studio Enhancement',
+                        description: 'Add "Create Entire World" mode to VibeMaster Studio. Natural language world description → circle generation → visual preview → export to simulation. Seamless voice input to playable world pipeline',
+                        tags: ['ui', 'procedural', 'studio'],
+                        priority: 'high',
+                        file: 'CIRCLE_BASED_WORLD_GENERATION.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/03_implementation/CIRCLE_BASED_WORLD_GENERATION.md'
+                    },
+                    {
+                        id: 'VM-044',
+                        title: 'Circle-Based World Generation - Visual Editor',
+                        description: 'Drag-and-drop circle editor for world design. Resize circles to adjust populations, see real-time impact on demographics/services, export to database. Visual tweaking of procedural generation parameters',
+                        tags: ['ui', 'procedural', 'tools'],
+                        priority: 'medium',
+                        file: 'CIRCLE_BASED_WORLD_GENERATION.md',
+                        repo: 'VibeMaster',
+                        path: 'docs/03_implementation/CIRCLE_BASED_WORLD_GENERATION.md'
+                    },
+                    {
                         id: 'VM-033',
                         title: 'Event Log Narration with Location Filter',
                         description: 'Convert all event logs into natural language narratives using Claude, filtered by player location proximity. Show only relevant events happening near the player with context-aware storytelling',
